@@ -1,10 +1,11 @@
 "use client";
 
-import Image from 'next/image';
+import Image from 'next/image'; 
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/services/supabaseClient';
 import React from 'react';
 import { useUser } from './provider';
+import { useRouter } from 'next/navigation';
 
 async function signInWithGoogle() {
   try {
@@ -22,6 +23,13 @@ async function signInWithGoogle() {
 
 function Home() {
   const { userDetail, testInsert } = useUser();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (userDetail) {
+      router.push('/dashboard');
+    }
+  }, [userDetail, router]);
 
   console.log('Home: UserDetail from context:', userDetail);
 

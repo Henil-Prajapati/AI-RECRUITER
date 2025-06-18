@@ -15,12 +15,18 @@ import { Plus, Video } from "lucide-react"; // Icon only
 import Image from "next/image";
 import { SideBarOptions } from "@/services/Constants";
 import styles from "./AppSidebar.module.css";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "@/app/auth/provider";
+import { supabase } from "@/services/supabaseClient";
 
 export default function AppSidebar() {
     const path = usePathname();  
     const { userDetail } = useUser();
+    const router = useRouter();
+    const handleLogout = async () => {
+      await supabase.auth.signOut();
+      router.push('/auth');
+    };
     console.log(path);
   return (
     <Sidebar className={`${styles.appSidebar}`}>
@@ -32,7 +38,9 @@ export default function AppSidebar() {
           <Image src="/logo.png" alt="Logo" width={200} height={100} className="w-[150px] drop-shadow-xl animate-fade-in" />
           <span className="absolute top-2 right-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white text-xs px-2 py-1 rounded-full shadow-lg animate-bounce">AI</span>
         </div>
-        <Button className="w-full flex items-center gap-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold shadow-lg hover:scale-105 transition-transform duration-200 animate-fade-in">
+        <Button className="w-full flex items-center gap-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold shadow-lg hover:scale-105 transition-transform duration-200 animate-fade-in"
+          onClick={() => router.push('/dashboard/create-interview')}
+        >
           <Plus size={16} />
           Create new Interview
         </Button>
@@ -54,8 +62,16 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="w-full text-center text-xs text-gray-400 py-2 animate-fade-in-down">
-          © {new Date().getFullYear()} AI Recruiter
+        <div className="w-full flex flex-col items-center">
+          <Button
+            className="w-full mb-2 bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold shadow-lg hover:scale-105 transition-transform duration-200 animate-fade-in"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+          <div className="text-center text-xs text-gray-400 py-2 animate-fade-in-down">
+            © {new Date().getFullYear()} AI Recruiter
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>

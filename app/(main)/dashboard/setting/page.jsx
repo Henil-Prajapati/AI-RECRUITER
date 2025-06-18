@@ -57,7 +57,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-200 to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br to-pink-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
       <div className="max-w-2xl w-full bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 animate-fade-in border border-blue-100 dark:border-gray-800">
         <h1 className="text-3xl font-extrabold mb-8 text-center bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow animate-slide-down">Settings</h1>
         <form onSubmit={handleSubmit} className="space-y-6">

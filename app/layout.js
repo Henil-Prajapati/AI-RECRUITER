@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Provider from "../app/auth/provider.jsx"; // Adjust path if needed
+import RouteChangeLoader from "@/components/RouteChangeLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <RouteChangeLoader />
         <Provider>{children}</Provider>
       </body>
     </html>

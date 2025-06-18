@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/services/supabaseClient";
 
-function WelcomeMessage({ name, picture, onProfileClick, onLogout, onTestInsert }) {
+function WelcomeMessage({ name, picture, onProfileClick, onLogout, onAddAccount, onSettings }) {
   return (
     <div className="w-full bg-white/80 dark:bg-gray-900/70 rounded-lg shadow p-4 mt-1 ml-11 flex flex-col items-center border border-gray-200 dark:border-gray-700 relative">
       {picture && (
@@ -28,9 +28,10 @@ function WelcomeMessage({ name, picture, onProfileClick, onLogout, onTestInsert 
                 className="rounded-full border-2 border-blue-400 shadow cursor-pointer hover:scale-105 transition-transform"
               />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="z-50 min-w-[160px]">
-              <DropdownMenuItem onClick={onProfileClick}>My Profile</DropdownMenuItem>
-              {onTestInsert && <DropdownMenuItem onClick={onTestInsert}>Test Insert</DropdownMenuItem>}
+            <DropdownMenuContent align="end" className="z-50 min-w-[180px]">
+              <DropdownMenuItem onClick={onProfileClick}>Edit Profile</DropdownMenuItem>
+              <DropdownMenuItem onClick={onAddAccount}>Add Account</DropdownMenuItem>
+              <DropdownMenuItem onClick={onSettings}>Settings</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onLogout} className="text-red-600">Logout</DropdownMenuItem>
             </DropdownMenuContent>
@@ -55,9 +56,17 @@ function WelcomeContainer() {
     router.push("/dashboard/setting");
   };
 
+  const handleAddAccount = () => {
+    router.push("/auth");
+  };
+
+  const handleSettings = () => {
+    router.push("/dashboard/setting");
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.reload();
+    router.push('/auth');
   };
 
   return (
@@ -68,7 +77,8 @@ function WelcomeContainer() {
           picture={userDetail.picture}
           onProfileClick={handleProfileClick}
           onLogout={handleLogout}
-          onTestInsert={testInsert}
+          onAddAccount={handleAddAccount}
+          onSettings={handleSettings}
         />
       ) : (
         <div className="h-12 w-48 bg-gray-200 rounded animate-pulse mb-2" />
