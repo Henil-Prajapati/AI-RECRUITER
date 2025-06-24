@@ -20,7 +20,7 @@ export default function InterviewDetailsPage() {
   }, [interview_id]);
 
   const fetchData = async () => {
-    setLoading(true);
+    setLoading(true);hh
     // Fetch interview details
     const { data: interviewData } = await supabase
       .from('Interviews')
