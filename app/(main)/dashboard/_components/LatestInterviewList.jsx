@@ -1,10 +1,9 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Video, Copy, Send } from 'lucide-react';
+import { Video, Copy, Send, Calendar, Clock, Users, MoreVertical } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
-import { supabase } from '@/services/supabaseClient'; // Import Supabase client
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
+import { supabase } from '@/services/supabaseClient';
 import { toast } from 'react-hot-toast';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Toaster } from 'react-hot-toast';
@@ -12,7 +11,6 @@ import { Toaster } from 'react-hot-toast';
 function LatestInterviewList() {
     const [interviewList, setInterviews] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [shareOpenId, setShareOpenId] = useState(null);
 
     useEffect(() => {
         getInterviewList();
@@ -23,11 +21,11 @@ function LatestInterviewList() {
         const { data, error } = await supabase
             .from('Interviews')
             .select('*')
-            .order('id', { ascending: false }); // Order by ID descending to get latest first
+            .order('id', { ascending: false })
+            .limit(6);
 
         if (data) {
             setInterviews(data);
-            console.log('Supabase Data:', data);
         } else if (error) {
             console.error('Error fetching interviews:', error);
         }
@@ -36,7 +34,7 @@ function LatestInterviewList() {
 
     const handleCopy = (link) => {
         navigator.clipboard.writeText(link);
-        toast.success('Link copied to clipboard!');
+        toast.success('Interview link copied to clipboard!');
     };
 
     const getShareUrl = (platform, link) => {
@@ -49,26 +47,58 @@ function LatestInterviewList() {
         return '#';
     };
 
+    if (loading) {
+        return (
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-foreground">Recent Interviews</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="bg-card rounded-xl p-6 border border-border/50 animate-pulse">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="w-12 h-12 bg-muted rounded-xl" />
+                                <div className="w-20 h-4 bg-muted rounded" />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="w-3/4 h-5 bg-muted rounded" />
+                                <div className="w-1/2 h-4 bg-muted rounded" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
             <Toaster position="top-right" />
-            <div className="w-full max-w-5xl mt-12">
-                <div className="flex items-center mb-6">
-                    <div className="w-2 h-8 bg-blue-600 rounded mr-3" />
-                    <h2 className="text-xl md:text-2xl font-extrabold text-gray-800 tracking-tight">
-                        Previously Created Interviews
-                    </h2>
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-foreground">Recent Interviews</h2>
+                        <p className="text-muted-foreground mt-1">Your latest interview sessions</p>
+                    </div>
+                    <Link href="/dashboard/all-interview">
+                        <Button variant="outline" className="hover:bg-accent">
+                            View All
+                        </Button>
+                    </Link>
                 </div>
-                <div className="w-16 h-0.5 bg-gray-300 rounded-full mb-8 ml-2" />
-                {loading ? (
-                    <p>Loading interviews...</p>
-                ) : interviewList?.length === 0 ? (
-                    <div className='p-8 flex flex-col items-center justify-center bg-white/80 dark:bg-gray-900/70 rounded-xl shadow border border-gray-200 dark:border-gray-700'>
-                        <Video size={48} className='text-blue-500 mb-4' />
-                        <h3 className='text-lg font-semibold text-gray-700 mb-2'>You don&apos;t have any interviews yet</h3>
-                        <Link href="/dashboard/create-interview" passHref>
-                            <Button className='mt-2 px-6 py-2 text-base font-medium' asChild>
-                                <span>Create a New Interview</span>
+
+                {interviewList?.length === 0 ? (
+                    <div className="text-center py-16 bg-card rounded-2xl border border-border/50">
+                        <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                            <Video className="w-10 h-10 text-white" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">No interviews yet</h3>
+                        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                            Get started by creating your first AI-powered interview session
+                        </p>
+                        <Link href="/dashboard/create-interview">
+                            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                                Create Your First Interview
                             </Button>
                         </Link>
                     </div>
@@ -77,43 +107,81 @@ function LatestInterviewList() {
                         {interviewList.map((interview) => {
                             const link = `${window.location.origin}/interview/${interview.interview_id || interview.id}`;
                             return (
-                                <div key={interview.id} className="bg-white dark:bg-gray-800 rounded-xl shadow overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-lg border border-gray-200 dark:border-gray-700">
-                                    <div className="p-5">
-                                        <div className="flex justify-between items-start mb-3">
-                                            {/* Placeholder for Company Logo/Icon */}
-                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-lg font-bold">
-                                                {interview.jobPosition ? interview.jobPosition[0] : ''}
+                                <div key={interview.id} className="bg-card rounded-xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-300 card-hover overflow-hidden">
+                                    <div className="p-6">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                                {interview.jobPosition ? interview.jobPosition[0] : 'I'}
                                             </div>
-                                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                {interview.created_at ? new Date(interview.created_at).toLocaleDateString() : ''}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-1">{interview.jobPosition}</h3>
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{interview.duration}</p>
-                                        <div className="flex gap-3">
-                                            <Button variant="outline" className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-700 dark:hover:bg-gray-700" onClick={() => handleCopy(link)}>
-                                                <Copy className="h-4 w-4 mr-2" /> Copy Link
-                                            </Button>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">
-                                                        <Send className="h-4 w-4 mr-2" /> Send
+                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                        <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem asChild>
-                                                        <a href={getShareUrl('gmail', link)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                                                            <span role="img" aria-label="Gmail">📧</span> Share via Gmail
-                                                        </a>
+                                                    <DropdownMenuItem onClick={() => handleCopy(link)}>
+                                                        <Copy className="h-4 w-4 mr-2" />
+                                                        Copy Link
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem asChild>
-                                                        <a href={getShareUrl('whatsapp', link)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                                                            <span role="img" aria-label="WhatsApp">🟢</span> Share via WhatsApp
+                                                        <a href={getShareUrl('gmail', link)} target="_blank" rel="noopener noreferrer">
+                                                            <Send className="h-4 w-4 mr-2" />
+                                                            Share via Email
                                                         </a>
                                                     </DropdownMenuItem>
-                                                    {/* Add more share options here */}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
+                                        </div>
+                                        
+                                        <div className="space-y-3">
+                                            <div>
+                                                <h3 className="font-semibold text-foreground text-lg leading-tight">
+                                                    {interview.jobPosition}
+                                                </h3>
+                                                <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                                                    <div className="flex items-center gap-1">
+                                                        <Clock className="w-4 h-4" />
+                                                        {interview.duration}
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="w-4 h-4" />
+                                                        {interview.created_at ? new Date(interview.created_at).toLocaleDateString() : ''}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex gap-2">
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className="flex-1 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 dark:hover:bg-blue-950/20"
+                                                    onClick={() => handleCopy(link)}
+                                                >
+                                                    <Copy className="h-4 w-4 mr-2" />
+                                                    Copy
+                                                </Button>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button size="sm" className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                                                            <Send className="h-4 w-4 mr-2" />
+                                                            Share
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem asChild>
+                                                            <a href={getShareUrl('gmail', link)} target="_blank" rel="noopener noreferrer">
+                                                                📧 Share via Gmail
+                                                            </a>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem asChild>
+                                                            <a href={getShareUrl('whatsapp', link)} target="_blank" rel="noopener noreferrer">
+                                                                💬 Share via WhatsApp
+                                                            </a>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

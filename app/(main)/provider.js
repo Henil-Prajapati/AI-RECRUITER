@@ -1,18 +1,17 @@
 "use client";
 
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import React from 'react';
 import AppSidebar from './_components/AppSidebar';
-import WelcomeContainer from './dashboard/_components/WelcomeContainer';
 
 function DashboardProvider({ children }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <div className='w-full'>
-        {/* <SidebarTrigger /> */}
-        <WelcomeContainer />
-        {children}
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   );
